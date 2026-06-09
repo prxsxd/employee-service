@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: employee-service
-        image: prasad5657/employee-service:1.0
+        image: IMAGE_PLACEHOLDER
         imagePullPolicy: Always
 
         ports:
