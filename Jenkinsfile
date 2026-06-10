@@ -71,15 +71,13 @@ pipeline {
                 def logs = currentBuild.rawBuild.getLog(100).join('\n')
 
                 writeFile file: 'failure-log.txt', text: logs
-
-                sh '''
-                LOGS=$(cat failure-log.txt | tr '\n' ' ' | sed 's/"/\\\\\\"/g')
-
-                curl -X POST http://host.docker.internal:1001/api/analyze \
-                -H "Content-Type: application/json" \
-                -d "{\\"logs\\":\\"$LOGS\\"}"
-                '''
             }
+
+            sh '''
+            curl -X POST http://host.docker.internal:1001/api/analyze \
+            -H "Content-Type: text/plain" \
+            --data-binary @failure-log.txt
+            '''
         }
     }
 }
