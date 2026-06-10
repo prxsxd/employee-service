@@ -63,21 +63,22 @@ pipeline {
         }
 
         failure {
+
             script {
 
                 echo 'Pipeline failed.'
 
                 def logs = currentBuild.rawBuild.getLog(100).join('\n')
 
-                echo "Last 100 lines of logs:"
-                echo logs
+                writeFile file: 'failure-log.txt', text: logs
 
-                // Future Enhancement:
-                //
-                // 1. Call DevOps AI Copilot API
-                // 2. Send Jenkins + Kubernetes logs
-                // 3. Receive RCA from GPT-4.1-mini + Foundry IQ
-                // 4. Create Jira Ticket automatically
+                sh '''
+                LOGS=$(cat failure-log.txt | tr '\n' ' ' | sed 's/"/\\\\\\"/g')
+
+                curl -X POST http://host.docker.internal:1001/api/analyze \
+                -H "Content-Type: application/json" \
+                -d "{\\"logs\\":\\"$LOGS\\"}"
+                '''
             }
         }
     }
